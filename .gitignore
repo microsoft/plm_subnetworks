@@ -1,0 +1,42 @@
+# Exclude data, results, and environments
+data/
+results/
+h100env/
+**/wandb/
+runs/
+
+# Exclude Python build artifacts
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.pyo
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Exclude Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Exclude environment and package manager files
+*.env
+*.venv
+*.log
+*.sqlite3
+*.db
+*.DS_Store
+
+# Ignore VSCode or other editor configs
+.vscode/
+.idea/
+*.swp
+
+# Ignore compiled C extensions
+*.c
+*.cpp
+*.o
+*.out
+
+# Exclude specific subdirs
+plm_inv_subnetworks.egg-info/
