@@ -12,7 +12,7 @@ git clone https://github.com/microsoft/plm_subnetworks.git
 cd plm_inv_subnetworks
 pip install -e .
 ```
-## Requiremenets
+## Requirements
 For training and MLM evaluations, create the environment:
 ```
 pip install --extra-index-url https://download.pytorch.org/whl/cu121 -r environments/h100env_requirements.txt
