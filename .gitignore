@@ -8,6 +8,9 @@ checkpoints/
 
 *.gz
 *.tar.gz
+*.tar.gz*
+deposition.json
+
 
 # Exclude Python build artifacts
 __pycache__/

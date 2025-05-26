@@ -29,9 +29,9 @@ Note: If installation fails, verify your CUDA version.
 
 ## Data
 
-We use the CATH v.4.3.0 release for training. Training data, model checkpoints, ESM-2 650M inference metrics and subnetwork evaluation data to recreate our results in the paper are hosted on Zenodo:
+We use the CATH v.4.3.0 release for training. Training data, model checkpoints, ESM-2 650M inference metrics and subnetwork evaluation data to recreate our results in the paper are hosted on Zenodo: [link](https://zenodo.org/uploads/15514844)
 
-Download the folders to ```data/``` and results to ```results/```.
+Download the files to ```data/``` and results to ```results/```. 
 
 In the above, we provide the PDB chains of the precut CATH domains as used in training, but note that the original data was downloaded at
 
@@ -65,6 +65,11 @@ domain_length: 85
 resolution: 2.5
 sequence: TPCTCGSSDLYLVTRHADVIPVRRRGDSRGSLLSPRPISYLKGSSGGPLLCPTGHAVGLFRAAVCTRGVAKAVDFIPVENLETTM
 
+```
+Model checkpoints are stored in split zip files, you can reassemble them via 
+```
+cat checkpoints.tar.gz.part_* > checkpoints.tar.gz
+tar -xvzf checkpoints.tar.gz
 ```
 
 
