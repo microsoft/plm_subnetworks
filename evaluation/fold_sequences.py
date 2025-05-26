@@ -126,6 +126,7 @@ def main(args):
         records = []
         for cid in val_ids:
             seq = db.query(cid).sequence
+            # setting masks to None will use the default ESM-650M representation => ESMFold (650M)
             plddt = fold_and_write_pdb(fold_model, cid, seq, masks, fold_dir)
             records.append({"cath_id": cid, "pred_plddt": plddt})
 

@@ -4,6 +4,10 @@ results/
 h100env/
 **/wandb/
 runs/
+checkpoints/
+
+*.gz
+*.tar.gz
 
 # Exclude Python build artifacts
 __pycache__/
