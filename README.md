@@ -2,14 +2,14 @@
 
 ## Description
 
-Protein language models (PLMs) pretrained via a masked language modeling objective have proven effective across a range of structure-related tasks, including high-resolution structure prediction. However, it remains unclear to what extent these models factorize protein structural categories among their learned parameters. In this work, we introduce trainable PLM inverse subnetworks that suppress specific structural categories within PLM weights. We systematically train 36 inverse subnetworks targeting both sequence- and residue-level features at varying degrees of resolution using annotations defined by CATH taxonomy and secondary structure elements. With these, we assess how structural factorization in PLMs influences downstream structure prediction. Our results show that PLMs are highly sensitive to sequence-level features and can only disentangle extremely coarse or fine-grained information. Furthermore, structure prediction is highly sensitive to factorized PLM representations and small changes in language modeling performance can significantly impair PLM-based structure prediction performance. Broadly, our work presents a framework for studying feature entanglement within pretrained PLMs and can be leveraged to improve alignment of learned PLM representations with known biological patterns.
+Protein language models (PLMs) pretrained via a masked language modeling objective have proven effective across a range of structure-related tasks, including high-resolution structure prediction. However, it remains unclear to what extent these models factorize protein structural categories among their learned parameters. In this work, we introduce trainable subnetworks, which mask out PLM weights responsible for the language modeling performance on a structural category of proteins. We systematically train 36 PLM subnetworks targeting both sequence- and residue-level features at varying degrees of resolution using annotations defined by the CATH taxonomy and secondary structure elements. Using these PLM subnetworks, we assess how structural factorization in PLMs influences downstream structure prediction. Our results show that PLMs are highly sensitive to sequence-level features and can predominantly disentangle extremely coarse or fine-grained information. Furthermore, we observe that structure prediction is highly responsive to factorized PLM representations and that small changes in language modeling performance can significantly impair PLM-based structure prediction performance. Our work presents a framework for studying feature entanglement within pretrained PLMs and can be leveraged to improve the alignment of learned PLM representations with known biological patterns.
 
 ![](fig/figure1.png)
 
 ## Installation
 ```
 git clone https://github.com/microsoft/plm_subnetworks.git
-cd plm_inv_subnetworks
+cd plm_subnetworks
 pip install -e .
 ```
 ## Requirements
@@ -44,7 +44,7 @@ Annotation format: [CATH README](https://github.com/wukevin/proteinclip/blob/mai
 CATH entries are processed as objects, which can be inspected via
 
 ```
-python plm_inv_subnetworks/dataset/cath_dataset.py 1a1rA02
+python plm_subnetworks/dataset/cath_dataset.py 1a1rA02
 
 CATHEntry
 cath_id: 1a1rA02
@@ -73,11 +73,11 @@ tar -xvzf checkpoints.tar.gz
 ```
 
 
-## Training inverse subnetworks
+## Training subnetworks
 
 You can train a sequence-suppression model via
 ```
-python subnetwork/train_logits.py \
+python plm_subnetworks/subnetwork/train_logits.py \
     --run_name seq-suppression-class-1 \
     --wandb_project cath-class \
     --batch_size 16 \
@@ -121,16 +121,16 @@ Additional notes:
 
 
 
-## Evaluating inverse subnetworks
+## Evaluating subnetworks
 
 ### MLM evaluation
-- To run inference with a trained inverse subnetwork, specify the run name, epoch to evaluate, category and suppression target. 
+- To run inference with a trained subnetwork, specify the run name, epoch to evaluate, category and suppression target. 
 - ```n_passes``` can be used to specify how many inference passes to run (in our paper we use 10). 
 - ```--extend_val``` performs evaluation on the full dataset, the absence of this flag results in inference only on the validation data for each model. 
-- You can pass ```--csv``` with the path to a csv of inverse subnetworks metadata to evaluate a set of models, such that you don't have to specify individual settings. See ```results/metadata.csv``` for an example.
+- You can pass ```--csv``` with the path to a csv of subnetworks metadata to evaluate a set of models, such that you don't have to specify individual settings. See ```results/metadata.csv``` for an example.
 
 ```
-python seq_inference.py \
+python evaluation/plm_seq_inference.py \
     --run_name seq-suppression-class-1_11552001 \
     --epoch 02 \
     --category cath_class_code \
@@ -143,7 +143,7 @@ python seq_inference.py \
 Note that this evaluation requires the provided esmfold environment to be activated.
 
 ```
-python fold_sequences.py \
+python evaluation/fold_sequences.py \
     --run_name seq-suppression-class-1_11552001 \
     --epoch 02 \
     --category cath_class_code 
@@ -155,7 +155,7 @@ Specify ```--cath_ids``` to only fold specific examples.
 To run TMAlign on predicted structures,
 
 ```
-python tm_scores.py \
+python evaluation/tm_scores.py \
     --run_name seq-suppression-class-1_11552001 \
     --mode pred \
     --epoch 02 \
@@ -163,13 +163,13 @@ python tm_scores.py \
     --target 1 \
     --subnetwork_eval 
 ```
-- ```--subnetwork_eval``` is required to evaluate an inverse subnetwork. 
+- ```--subnetwork_eval``` is required to evaluate an subnetwork. 
 - You can evaluate specific examples by specifying ```--cath_ids``` as in the above.
 - The default script assumes that TMAlign installed in your path via ```TMAlign/``` but you can specify it with the ```--tm_align_path``` argument. If you don't have TMAlign installed, install it from [here](https://anaconda.org/bioconda/tmalign$0).
 
 ## Recreating results from the paper
 
-For ease, we provided the results of ESM-2 650M perplexities and ESMFold (650M) on our dataset. For each trained inverse subnetwork reported in our paper, we provide the following in ```results/```:
+For ease, we provided the results of ESM-2 650M perplexities and ESMFold (650M) on our dataset. For each trained subnetwork reported in our paper, we provide the following in ```results/```:
 - config used to train model
 - train val split
 - model checkpoint
@@ -177,10 +177,10 @@ For ease, we provided the results of ESM-2 650M perplexities and ESMFold (650M) 
 - per-predicted structure TM-score, RMSD, pLDDT
 - For the models compared in Figures 3D-G in the paper, we also provide the predicted structures.
 
-We provide code to reproduce all figures from the paper with these results in ```notebooks/```. This code can be modified to visualize the results of any newly trained inverse subnetworks. 
+We provide code to reproduce all figures from the paper with these results in ```notebooks/```. This code can be modified to visualize the results of any newly trained subnetworks. 
 
 ## Extending to new datasets and annotations
 
-- All sequences and annotations are extracted for a fasta file format. You can add new modules to parse fasta headers with different annotations. See ```plm_inv_subnetworks/dataset/swissprot_dataset.py``` for an example of parsing the SwissProt dataset and annotations.
-- We provide utilities to extract DSSP secondary structure annotations in ```plm_inv_subnetworks/dssp```.
+- All sequences and annotations are extracted for a fasta file format. You can add new modules to parse fasta headers with different annotations. See ```plm_subnetworks/dataset/swissprot_dataset.py``` for an example of parsing the SwissProt dataset and annotations.
+- We provide utilities to extract DSSP secondary structure annotations in ```plm_subnetworks/dssp/```.
 

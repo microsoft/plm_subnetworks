@@ -22,8 +22,8 @@
 
 #SBATCH -J EVAL-v27-test 
 
-cd /users/rvinod/data/rvinod/repos/plm_inv_subnetworks/evaluation
-source /users/rvinod/data/rvinod/repos/plm_inv_subnetworks/h100env/bin/activate
+cd /users/rvinod/data/rvinod/repos/plm_subnetworks/evaluation
+source /users/rvinod/data/rvinod/repos/plm_subnetworks/h100env/bin/activate
 
 
 python seq_inference.py \

@@ -6,11 +6,10 @@ from pathlib import Path
 
 import pandas as pd
 import biotite.structure.io as bsio
-import torch
 
-from plm_inv_subnetworks.dataset import data_io
-from plm_inv_subnetworks.dataset.cath_dataset import get_cath_db
-from plm_inv_subnetworks.dataset.data_paths import PDB_DIR, RUN_DIR_PREFIX
+from plm_subnetworks.dataset import data_io
+from plm_subnetworks.dataset.cath_dataset import get_cath_db
+from plm_subnetworks.dataset.data_paths import PDB_DIR, RUN_DIR_PREFIX
 
 
 def get_rank_001_pdb_path(cath_id: str, directory: str) -> str:

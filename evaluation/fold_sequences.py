@@ -7,13 +7,13 @@ import torch
 import pandas as pd
 import biotite.structure.io as bsio
 
-from plm_inv_subnetworks.dataset import data_io
-from plm_inv_subnetworks.dataset import data_paths
-from plm_inv_subnetworks.dataset.data_paths import RUN_DIR_PREFIX, CATH_S20_ATOM_IDS
-from plm_inv_subnetworks.dataset.cath_dataset import CATHDatabase, CATH_ENTRY_FILEPATH
-from plm_inv_subnetworks.subnetwork.modules import SubnetworkESM, WeightedDifferentiableMask
-from plm_inv_subnetworks.subnetwork.esm_masking_pl_logits import ESMMaskLearner
-from plm_inv_subnetworks.esm_modules.esmfold import _load_model
+from plm_subnetworks.dataset import data_io
+from plm_subnetworks.dataset import data_paths
+from plm_subnetworks.dataset.data_paths import RUN_DIR_PREFIX, CATH_S20_ATOM_IDS
+from plm_subnetworks.dataset.cath_dataset import CATHDatabase, CATH_ENTRY_FILEPATH
+from plm_subnetworks.subnetwork.modules import SubnetworkESM, WeightedDifferentiableMask
+from plm_subnetworks.subnetwork.esm_masking_pl_logits import ESMMaskLearner
+from plm_subnetworks.esm_modules.esmfold import _load_model
 
 
 def fold_and_write_pdb(model, cid, seq, masks, folding_dir):

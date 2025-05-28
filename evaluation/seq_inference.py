@@ -8,15 +8,15 @@ import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 
-from plm_inv_subnetworks.dataset import data_paths, data_io
-from plm_inv_subnetworks.dataset.cath_dataset import CATHDatabase, CATH_ENTRY_FILEPATH
-from plm_inv_subnetworks.dataset.data_paths import CATH_S20_DSSP_FASTA, ESM_PPL_METRICS, RUN_DIR_PREFIX
-from plm_inv_subnetworks.dataset.esm_seq_dataloader import CATHSeqDatasetESM
+from plm_subnetworks.dataset import data_paths, data_io
+from plm_subnetworks.dataset.cath_dataset import CATHDatabase, CATH_ENTRY_FILEPATH
+from plm_subnetworks.dataset.data_paths import CATH_S20_DSSP_FASTA, ESM_PPL_METRICS, RUN_DIR_PREFIX
+from plm_subnetworks.dataset.esm_seq_dataloader import CATHSeqDatasetESM
 
-from plm_inv_subnetworks.subnetwork.esm_masking_pl_logits import ESMMaskLearner
-from plm_inv_subnetworks.subnetwork.modules import WeightedDifferentiableMask
+from plm_subnetworks.subnetwork.esm_masking_pl_logits import ESMMaskLearner
+from plm_subnetworks.subnetwork.modules import WeightedDifferentiableMask
 
-from plm_inv_subnetworks.utils.metrics import PerSequenceMaskedCrossEntropyLoss
+from plm_subnetworks.utils.metrics import PerSequenceMaskedCrossEntropyLoss
 
 
 
@@ -47,7 +47,7 @@ def main(args):
         config, split = data_io.get_args_split(run_dir)
         ckpt_path = f"{config['run_dir']}/checkpoints/regular_checkpoints/epoch={epoch}.ckpt"
 
-        print(f"\n>>> Evaluating inv. subnetwork: category = '{category}', target = '{target}', "
+        print(f"\n>>> Evaluating subnetwork: category = '{category}', target = '{target}', "
             f"epoch = {epoch}, run_dir = '{run_name}'")
         print(f"Checkpoint path: {ckpt_path}")
 

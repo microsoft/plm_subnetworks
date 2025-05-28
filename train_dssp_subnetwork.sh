@@ -35,7 +35,7 @@
 # echo "Python: $(which python)"
 # echo "PYTHONPATH: $PYTHONPATH"
 
-source /users/rvinod/data/rvinod/repos/plm_inv_subnetworks/h100env/bin/activate
+source /users/rvinod/data/rvinod/repos/plm_subnetworks/h100env/bin/activate
 
 export CUDA_LAUNCH_BLOCKING=1
 
@@ -43,7 +43,7 @@ echo "Running from: $(pwd)"
 echo "Python: $(which python)"
 echo "PYTHONPATH: $PYTHONPATH"
 
-cd /users/rvinod/data/rvinod/repos/plm_inv_subnetworks/plm_inv_subnetworks
+cd /users/rvinod/data/rvinod/repos/plm_subnetworks/plm_subnetworks
 
 srun python subnetwork/train_logits.py \
    --run_name v27-test-helix \

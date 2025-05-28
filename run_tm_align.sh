@@ -23,7 +23,7 @@
 #SBATCH -J TMALIGN-v27-test
 
 
-cd /users/rvinod/data/rvinod/repos/plm_inv_subnetworks/evaluation
+cd /users/rvinod/data/rvinod/repos/plm_subnetworks/evaluation
 
 ml miniconda3/23.11.0s
 source /oscar/runtime/software/external/miniconda3/23.11.0/etc/profile.d/conda.sh
