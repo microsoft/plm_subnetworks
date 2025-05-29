@@ -1,6 +1,6 @@
 import plm_subnetworks.dataset.data_io as data_io
 
-ROOT_DIR = "/users/rvinod/data/rvinod/repos/plm_inv_subnetworks"
+ROOT_DIR = "../plm_subnetworks" #TODO: specify root dir here
 
 CATH_IDS_S20_PDB_CONTACTS = f"{ROOT_DIR}/data/cath_ids_with_pdb_contacts.txt"
 CATH_IDS_S20_PDB_CONTACTS_WITH_ANNOTATIONS = f"{ROOT_DIR}/data/cath_ids_with_annotations.csv"
