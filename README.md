@@ -29,7 +29,8 @@ Note: If installation fails, verify your CUDA version.
 
 ## Data
 
-We use the CATH v.4.3.0 release for training. Training data and splits, precomputed annotations, model checkpoints, ESM-2 650M inference metrics, and subnetwork evaluation data to recreate our results in the paper are hosted on Zenodo: [link](https://zenodo.org/uploads/15514844)
+We use the CATH v.4.3.0 release for training. Training data and splits, precomputed annotations, model checkpoints, ESM-2 650M inference metrics, and subnetwork evaluation data to recreate our results in the paper are hosted on Zenodo: [link](https://zenodo.org/records/15514844)
+
 
 Download the files to ```data/``` and results to ```results/```. 
 
