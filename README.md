@@ -1,4 +1,4 @@
-# PLM Inverse Subnetworks
+# PLM Subnetworks
 
 ## Description
 
@@ -193,7 +193,7 @@ If you use this code or method in your research, please consider citing the foll
 ```
 @article {token,
 	author = {Vinod, Ria and Amini, Ava P. and Crawford, Lorin and Yang, Kevin K.},
-	title = {Trainable inverse subnetworks reveal insights into structure knowledge organization in protein language models},
+	title = {Trainable subnetworks reveal insights into structure knowledge organization in protein language models},
 	elocation-id = {},
 	year = {2025},
 	doi = {},
