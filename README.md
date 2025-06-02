@@ -195,12 +195,12 @@ If you use this code or method in your research, please consider citing the foll
 @article {token,
 	author = {Vinod, Ria and Amini, Ava P. and Crawford, Lorin and Yang, Kevin K.},
 	title = {Trainable subnetworks reveal insights into structure knowledge organization in protein language models},
-	elocation-id = {},
+	elocation-id = {2025.05.29.656902},
 	year = {2025},
-	doi = {},
+	doi = {10.1101/2025.05.29.656902},
 	publisher = {Cold Spring Harbor Laboratory},
-	URL = {},
-	eprint = {},
+	URL = {https://www.biorxiv.org/content/early/2025/06/01/2025.05.29.656902},
+	eprint = {https://www.biorxiv.org/content/early/2025/06/01/2025.05.29.656902.full.pdf},
 	journal = {bioRxiv}
 }
 ```
