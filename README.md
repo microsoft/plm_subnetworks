@@ -13,10 +13,12 @@ cd plm_subnetworks
 pip install -e .
 ```
 ## Requirements
-For training and MLM evaluations, create the environment:
+For training and MLM evaluations, create a Python 3.11 virtual environment and install the pinned dependencies:
 ```
-pip install --extra-index-url https://download.pytorch.org/whl/cu121 -r environments/h100env_requirements.txt
-source h100env/bin/activate
+python3.11 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install --extra-index-url https://download.pytorch.org/whl/cu121 -r .venv_requirements.txt
 ```
 For structure prediction evaluations, create the environment:
 ```
@@ -26,6 +28,8 @@ pip install -e .
 pip install 'openfold @ git+https://github.com/aqlaboratory/openfold.git@4b41059694619831a7db195b7e0988fc4ff3a307'
 ```
 Note: If installation fails, verify your CUDA version.
+
+We provide code to train subnetworks for ProtBERT-UniRef100, CARP-640M, and Dayhoff-170M-UR90. To run these, install dependencies from their official releases.
 
 ## Data
 
@@ -125,47 +129,29 @@ Additional notes:
 ## Evaluating subnetworks
 
 ### MLM evaluation
-- To run inference with a trained subnetwork, specify the run name, epoch to evaluate, category and suppression target. 
+- To run inference with a trained subnetwork, use the following script:
+
+```
+./evaluation/esm_inference_array.sh
+```
+Set these args within the script:
+```
+DEFAULT_CSV="/users/rvinod/data/rvinod/repos/plm_subnetworks/results_figures/esm-all-final-no-prefix.csv"
+COMMON_ARGS=(
+    --n_passes 10
+    --extend_val
+)
+```
 - ```n_passes``` can be used to specify how many inference passes to run (in our paper we use 10). 
 - ```--extend_val``` performs evaluation on the full dataset, the absence of this flag results in inference only on the validation data for each model. 
-- You can pass ```--csv``` with the path to a csv of subnetworks metadata to evaluate a set of models, such that you don't have to specify individual settings. See ```results/metadata.csv``` for an example.
 
-```
-python evaluation/plm_seq_inference.py \
-    --run_name seq-suppression-class-1_11552001 \
-    --epoch 02 \
-    --category cath_class_code \
-    --target 1 \
-    --n_passes 10 \
-    --extend_val
-```
 
 ### Folding and structure prediction evaluation
-Note that this evaluation requires the provided esmfold environment to be activated.
-
+Note that this evaluation requires the provided esmfold environment to be installed.
 ```
-python evaluation/fold_sequences.py \
-    --run_name seq-suppression-class-1_11552001 \
-    --epoch 02 \
-    --category cath_class_code 
+./evaluation/esmfold_inference_array.sh
 ```
-Specify ```--cath_ids``` to only fold specific examples.
 
-
-
-To run TMAlign on predicted structures,
-
-```
-python evaluation/tm_scores.py \
-    --run_name seq-suppression-class-1_11552001 \
-    --mode pred \
-    --epoch 02 \
-    --category cath_class_code \
-    --target 1 \
-    --subnetwork_eval 
-```
-- ```--subnetwork_eval``` is required to evaluate an subnetwork. 
-- You can evaluate specific examples by specifying ```--cath_ids``` as in the above.
 - The default script assumes that TMAlign installed in your path via ```TMAlign/``` but you can specify it with the ```--tm_align_path``` argument. If you don't have TMAlign installed, install it from [here](https://anaconda.org/bioconda/tmalign$0).
 
 ## Recreating results from the paper
