@@ -19,6 +19,8 @@ class SubnetworkESM(nn.Module):
         self.mask_threshold = mask_threshold
         self.layers_to_mask = layers_to_mask
 
+        print("Masked layers:", self.layers_to_mask)
+
         for param in self.esm.parameters():
             param.requires_grad = False
 
@@ -155,18 +157,61 @@ class WeightedDifferentiableMask(nn.Module):
         return (zero_count / total_params) * 100
 
     def _compute_mask_scores(self) -> Dict[str, torch.Tensor]:
+        # hist_dict = {}
+        # mask_scores = {}
+        # for name, param in self.mask_params.items():
+        #     eps = 1e-7
+        #     # u = torch.clamp(torch.rand_like(param), eps, 1 - eps)
+        #     # noise = torch.log(u) - torch.log(1 - u)
+        #     # scores = (param + noise) / self.temperature
+            
+        #     u = torch.rand_like(param, dtype=torch.float32)
+        #     u = torch.clamp(u, eps, 1 - eps)
+        #     noise = torch.log(u) - torch.log1p(-u)
+        #     scores = (param.float() + noise) / float(self.temperature)
+        #     scores = scores.to(param.dtype)
+            
+        #     probs = torch.sigmoid(scores)
+        #     mask_scores[name] = probs
+
+        #     if wandb.run is not None:
+        #         hist_dict[f"pre_sigmoid_scores/{name}"] = wandb.Histogram(scores.detach().cpu().numpy())
+
+        # if wandb.run is not None and hist_dict:
+        #     wandb.log(hist_dict)
+
+        # return mask_scores
+
         hist_dict = {}
         mask_scores = {}
+
         for name, param in self.mask_params.items():
-            eps = 1e-7
-            u = torch.clamp(torch.rand_like(param), eps, 1 - eps)
-            noise = torch.log(u) - torch.log(1 - u)
-            scores = (param + noise) / self.temperature
-            probs = torch.sigmoid(scores)
+            with torch.amp.autocast(device_type="cuda", enabled=False):
+                param_fp32 = param.float()
+                eps = 1e-7
+
+                u = torch.rand_like(param_fp32)
+                u = torch.clamp(u, eps, 1 - eps)
+                noise = torch.log(u) - torch.log1p(-u)
+                scores_fp32 = (param_fp32 + noise) / float(self.temperature)
+
+            scores_cpu = scores_fp32.detach().cpu()
+            if not torch.isfinite(scores_cpu).all():
+                print(
+                    f"non-finite mask scores for {name}: "
+                    f"param finite={torch.isfinite(param).all()}, "
+                    f"noise finite={torch.isfinite(noise).all()}, "
+                    f"temperature={self.temperature}"
+                )
+                continue
+
+            probs = torch.sigmoid(scores_fp32).to(param.dtype)
             mask_scores[name] = probs
 
             if wandb.run is not None:
-                hist_dict[f"pre_sigmoid_scores/{name}"] = wandb.Histogram(scores.detach().cpu().numpy())
+                hist_dict[f"pre_sigmoid_scores/{name}"] = wandb.Histogram(
+                    scores_cpu.numpy()
+                )
 
         if wandb.run is not None and hist_dict:
             wandb.log(hist_dict)

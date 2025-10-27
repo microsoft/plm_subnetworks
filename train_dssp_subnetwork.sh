@@ -3,8 +3,8 @@
 #SBATCH --mail-user=ria_vinod@brown.edu
 #SBATCH --mail-type=ALL
 
-#SBATCH --output=/users/rvinod/data/rvinod/repos/probing-subnetworks/slurm_jobs/output-%j.out
-#SBATCH --error=/users/rvinod/data/rvinod/repos/probing-subnetworks/slurm_jobs/output-%j.err
+#SBATCH --output=/users/rvinod/data/rvinod/repos/plm_subnetworks/z_slurm/output-%j.out
+#SBATCH --error=/users/rvinod/data/rvinod/repos/plm_subnetworks/z_slurm/output-%j.err
 
 #SBATCH --gres-flags=enforce-binding 
 
@@ -20,22 +20,12 @@
 #SBATCH --mem=25G
 
 # Request an hour of runtime:
-#SBATCH --time=36:00:00
+#SBATCH --time=72:00:00
 
-#SBATCH -J  TRAIN-v27-test-helix 
+#SBATCH -J  TRAIN-esm-helix 
 
-# cd /users/rvinod/data/rvinod/repos/probing-subnetworks/plmprobe
-# source /users/rvinod/data/rvinod/repos/probing-subnetworks/h100env/bin/activate
 
-# ## export PYTHONPATH=/users/rvinod/data/rvinod/repos/probing-subnetworks
-# export CUDA_LAUNCH_BLOCKING=1
-# export TORCH_USE_CUDA_DSA=1
-
-# echo "Running from: $(pwd)"
-# echo "Python: $(which python)"
-# echo "PYTHONPATH: $PYTHONPATH"
-
-source /users/rvinod/data/rvinod/repos/plm_subnetworks/h100env/bin/activate
+source /users/rvinod/data/rvinod/repos/plm_subnetworks/.venv/bin/activate
 
 export CUDA_LAUNCH_BLOCKING=1
 
@@ -45,9 +35,11 @@ echo "PYTHONPATH: $PYTHONPATH"
 
 cd /users/rvinod/data/rvinod/repos/plm_subnetworks/plm_subnetworks
 
-srun python subnetwork/train_logits.py \
-   --run_name v27-test-helix \
-   --wandb_project dssp-suppression \
+ml python/3.11.0s-ixrhc3q 
+
+srun /oscar/data/lcrawfo1/rvinod/repos/plm_subnetworks/.venv/bin/python subnetwork/train_logits.py \
+   --run_name esm-helix \
+   --wandb_project esm-full-masked \
    --batch_size 16 \
    --max_epochs 800 \
    --mask_init_value 0.96 \
@@ -73,5 +65,6 @@ srun python subnetwork/train_logits.py \
    --lr_hold_epochs 50 \
    --mask_threshold 0.38 \
    --ckpt_freq 1 \
-   --sparsity_ramp_epochs 150
+   --sparsity_ramp_epochs 150 \
+   --mask_layer_range 0,33
 

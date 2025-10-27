@@ -1,6 +1,7 @@
 import argparse
 import os
 import warnings
+from pathlib import Path
 
 import esm
 import torch
@@ -29,6 +30,51 @@ def fold_and_write_pdb(model, cid, seq, masks, folding_dir):
 
     struct = bsio.load_structure(pred_pdb, extra_fields=["b_factor"])
     return struct.b_factor.mean()
+
+
+def _resolve_checkpoint_path(run_dir, epoch):
+    """Return the first checkpoint in run_dir matching the requested epoch."""
+    ckpt_dir = Path(run_dir) / "checkpoints" / "regular_checkpoints"
+    if not ckpt_dir.exists():
+        raise FileNotFoundError(f"Checkpoint directory not found: {ckpt_dir}")
+
+    def add_candidate(names, name):
+        if name not in names:
+            names.append(name)
+
+    candidates = []
+    epoch_normalized = (None if epoch is None else str(epoch).strip())
+    if not epoch_normalized or epoch_normalized.lower() in {"", "none", "nan"}:
+        # Prefer explicit "last" checkpoints when no epoch provided
+        add_candidate(candidates, "last.ckpt")
+        add_candidate(candidates, "epoch=last.ckpt")
+        add_candidate(candidates, "epoch_last.ckpt")
+    else:
+        if epoch_normalized.lower() == "last":
+            add_candidate(candidates, "last.ckpt")
+            add_candidate(candidates, "epoch=last.ckpt")
+            add_candidate(candidates, "epoch_last.ckpt")
+        else:
+            token_candidates = []
+            add_candidate(token_candidates, epoch_normalized)
+            if epoch_normalized.isdigit():
+                no_pad = str(int(epoch_normalized))
+                add_candidate(token_candidates, no_pad)
+                # Keep two-digit padding to catch files like epoch_01.ckpt
+                add_candidate(token_candidates, no_pad.zfill(2))
+            for token in token_candidates:
+                add_candidate(candidates, f"epoch={token}.ckpt")
+                add_candidate(candidates, f"epoch_{token}.ckpt")
+
+    for candidate in candidates:
+        ckpt_path = ckpt_dir / candidate
+        if ckpt_path.exists():
+            return ckpt_path
+
+    raise FileNotFoundError(
+        f"Unable to locate checkpoint for epoch '{epoch}' in {ckpt_dir}. "
+        f"Tried: {', '.join(candidates)}"
+    )
 
 
 def main(args):
@@ -75,7 +121,16 @@ def main(args):
             print(f"[{run_name}] will fold {len(val_ids)} sequences (epoch={epoch})")
 
         # Load checkpoint and prepare output dir
-        ckpt_file = f"{config['run_dir']}/checkpoints/regular_checkpoints/epoch={epoch or 'last'}.ckpt"
+        epoch_value = None
+        if epoch is not None and not (isinstance(epoch, float) and pd.isna(epoch)):
+            epoch_value = str(epoch).strip()
+            if epoch_value.endswith(".0"):
+                epoch_value = epoch_value[:-2]
+            if not epoch_value:
+                epoch_value = None
+
+        ckpt_path = _resolve_checkpoint_path(config["run_dir"], epoch_value)
+        ckpt_file = str(ckpt_path)
         ckpt_meta = torch.load(ckpt_file, map_location="cpu")
         actual_epoch = ckpt_meta["epoch"]
         fold_dir = f"{config['run_dir']}/folded_epoch_{actual_epoch}_{suffix}"

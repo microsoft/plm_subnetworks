@@ -1,18 +1,19 @@
 import random
+from transformers import BertTokenizer
 from torch.utils.data import DataLoader
 
 from plm_subnetworks.dataset import data_io, data_paths
 from plm_subnetworks.dataset.batch_sampler import CustomBatchSampler
 from plm_subnetworks.dataset.cath_dataset import CATHDatabase, CATH_ENTRY_FILEPATH, CATH_S20_DSSP_FASTA
-from plm_subnetworks.dataset.esm_seq_dataloader import CATHSeqDatasetESM
+from plm_subnetworks.dataset.protbert_seq_dataloader import CATHSeqDatasetProtBERT
 from plm_subnetworks.dataset.data_paths import CATH_IDS_S20_PDB_CONTACTS
 
 def sanitize_name(name):
     return name.replace('.', '_')
 
-def get_dataloaders(batch_size, alphabet, split=0.7, even_sampling=False,shuffle=True, num_workers=0, 
+def get_dataloaders(batch_size, split=0.7, even_sampling=False,shuffle=True, num_workers=0, 
                     debug=False, train_ids=None, val_ids=None, test_ids=None, use_dssp=False,
-                    level=None, target=None, num_samples=None, random_n=None, random_supp_id_path=None):
+                    level=None, target=None, num_samples=None, random_n=None, random_supp_id_path=None, tokenizer_name="Rostlab/prot_bert_bfd"):
     
     cath_version = "20"
     cath_ids, seq_filepath = data_paths.get_cath_paths(cath_version)
@@ -41,15 +42,27 @@ def get_dataloaders(batch_size, alphabet, split=0.7, even_sampling=False,shuffle
     print(f"Using {num_workers} workers")
 
     # Create datasets and dataloaders
-    train_dataset = CATHSeqDatasetESM(train_ids, db, alphabet,
-                                   min_n_res=64, 
-                                   max_n_res=512,
-                                   use_dssp=use_dssp)
-    
-    val_dataset = CATHSeqDatasetESM(val_ids, db, alphabet, 
-                                   min_n_res=64, 
-                                   max_n_res=512,
-                                   use_dssp=use_dssp)
+    tokenizer = BertTokenizer.from_pretrained(tokenizer_name, do_lower_case=False)
+    print(f"Using tokenizer: {tokenizer_name}")
+
+    train_dataset = CATHSeqDatasetProtBERT(
+        cath_ids=train_ids,
+        cath_database=db,
+        tokenizer=tokenizer,
+        min_n_res=64,
+        max_n_res=512,
+        masking=True,
+    )
+
+    val_dataset = CATHSeqDatasetProtBERT(
+        cath_ids=val_ids,
+        cath_database=db,
+        tokenizer=tokenizer,
+        min_n_res=64,
+        max_n_res=512,
+        masking=True,
+    )
+
     
     if even_sampling:
         
@@ -76,6 +89,7 @@ def get_dataloaders(batch_size, alphabet, split=0.7, even_sampling=False,shuffle
         # val_batch_sampler = CustomBatchSampler(val_dataset, batch_size, level=level, target=target, num_samples=num_samples, random_n=random_n)
 
         val_batch_sampler = CustomBatchSampler(val_dataset, batch_size, level=level, target=target, num_samples=num_samples)
+
         val_loader = DataLoader(val_dataset, batch_sampler=val_batch_sampler, collate_fn=train_dataset.collate_fn, num_workers=num_workers, pin_memory=True)
 
 

@@ -3,16 +3,16 @@ import os
 import random
 
 import torch
-import esm
 import wandb
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
+from transformers import BertForMaskedLM
 
 from plm_subnetworks.dataset import data_io
-from plm_subnetworks.subnetwork.esm_masking_pl_logits import ESMMaskLearner
-from plm_subnetworks.subnetwork.modules import WeightedDifferentiableMask
-from plm_subnetworks.subnetwork.utils import get_dataloaders
+from plm_subnetworks.subnetwork.protbert_masking_pl_logits import ProtBERTMaskLearner
+from plm_subnetworks.subnetwork.protbert_modules import WeightedDifferentiableMaskProtBert
+from plm_subnetworks.subnetwork.protbert_utils import get_dataloaders
 
 from plm_subnetworks.dataset.data_paths import RUN_DIR_PREFIX
 
@@ -95,7 +95,7 @@ def parse_args():
                       help='Checkpoint frequency')
     
     # Model architecture
-    parser.add_argument('--model_name', type=str, default="esm2_t33_650M_UR50D",
+    parser.add_argument('--model_name', type=str, default="Rostlab/prot_bert_bfd",
                       help='Model name')
     parser.add_argument('--mask_init_value', type=float, default=-4.595,
                       help='Mask initialization value')
@@ -145,10 +145,13 @@ if __name__ == "__main__":
     torch.set_float32_matmul_precision('medium')
     os.environ['MASTER_PORT'] = str(random.randint(29500, 29999))
     os.environ['MASTER_ADDR'] = 'localhost'
-    model, alphabet = esm.pretrained.esm2_t33_650M_UR50D()
-    batch_converter = alphabet.get_batch_converter()
-    args = parse_args()
+    # model, alphabet = esm.pretrained.esm2_t33_650M_UR50D()
+    # batch_converter = alphabet.get_batch_converter()
 
+    args = parse_args()
+    print("Model name:", args.model_name)
+    model = BertForMaskedLM.from_pretrained(args.model_name)
+    print(f"Loaded model: {args.model_name}")
 
     config={
         "batch_size": args.batch_size,
@@ -176,7 +179,7 @@ if __name__ == "__main__":
         "suppression_level": args.suppression_level,
         "suppression_target": args.suppression_target,
         "random_n": args.random_n,
-        "model": "esm2_t33_650M_UR50D",
+        # "model": "protbert_bfd",
 
         "suppression_lambda": args.suppression_lambda,
         "maintenance_lambda": args.maintenance_lambda,
@@ -243,7 +246,6 @@ if __name__ == "__main__":
 
     if config["suppression_mode"] == "cath" and config["suppression_level"] and config["suppression_target"]:
         train_ids, val_ids, test_ids, train_loader, val_loader = get_dataloaders(batch_size=config["batch_size"], 
-                                                                        alphabet=alphabet, 
                                                                         even_sampling=True, 
                                                                         num_workers=config["num_workers"], 
                                                                         use_dssp=use_dssp,
@@ -253,17 +255,18 @@ if __name__ == "__main__":
                                                                         debug=config["debug"], 
                                                                         random_n=config["random_n"],
                                                                         random_supp_id_path=config["random_supp_id_path"],
+                                                                        tokenizer_name=args.model_name
                                                                         )
 
     else:
         train_ids, val_ids, test_ids, train_loader, val_loader = get_dataloaders(config["batch_size"], 
-                                                                                alphabet, 
                                                                                 debug=config["debug"], 
                                                                                 shuffle=True,  
                                                                                 num_workers=config["num_workers"], 
                                                                                 use_dssp=use_dssp,
                                                                                 random_n=config["random_n"],
-        )
+                                                                        tokenizer_name=args.model_name
+                                                                        )
 
 
 
@@ -273,7 +276,7 @@ if __name__ == "__main__":
     print("Created config", config)
 
 
-    mask_learner = WeightedDifferentiableMask(
+    mask_learner = WeightedDifferentiableMaskProtBert(
         model, 
         temp_init=config["mask_temperature_init"],
         temp_final=config["mask_temperature_final"],
@@ -285,7 +288,7 @@ if __name__ == "__main__":
     )
 
 
-    lightning_model = ESMMaskLearner(
+    lightning_model = ProtBERTMaskLearner(
         model=model,
         mask_learner=mask_learner,
         suppression_mode=config["suppression_mode"],
