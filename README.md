@@ -10,13 +10,13 @@ Protein language models (PLMs) pretrained via a masked language modeling objecti
 ```
 git clone https://github.com/microsoft/plm_subnetworks.git
 cd plm_subnetworks
-pip install -e .
 ```
 ## Requirements
 For training and MLM evaluations, create a Python 3.11 virtual environment and install the pinned dependencies:
 ```
 python3.11 -m venv .venv
 source .venv/bin/activate
+pip install -e .
 pip install --upgrade pip
 pip install --extra-index-url https://download.pytorch.org/whl/cu121 -r .venv_requirements.txt
 ```
