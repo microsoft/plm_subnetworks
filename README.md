@@ -2,7 +2,7 @@
 
 ## Description
 
-Protein language models (PLMs) pretrained via a masked language modeling objective have proven effective across a range of structure-related tasks, including high-resolution structure prediction. However, it remains unclear to what extent these models factorize protein structural categories among their learned parameters. In this work, we introduce trainable subnetworks, which mask out PLM weights responsible for the language modeling performance on a structural category of proteins. We systematically train 36 PLM subnetworks targeting both sequence- and residue-level features at varying degrees of resolution using annotations defined by the CATH taxonomy and secondary structure elements. Using these PLM subnetworks, we assess how structural factorization in PLMs influences downstream structure prediction. Our results show that PLMs are highly sensitive to sequence-level features and can predominantly disentangle extremely coarse or fine-grained information. Furthermore, we observe that structure prediction is highly responsive to factorized PLM representations and that small changes in language modeling performance can significantly impair PLM-based structure prediction performance. Our work presents a framework for studying feature entanglement within pretrained PLMs and can be leveraged to improve the alignment of learned PLM representations with known biological patterns.
+Protein language models (PLMs) pretrained via a masked language modeling objective have proven effective across a range of structure-related tasks, including high-resolution structure prediction. However, it remains unclear to what extent these models factorize protein structural categories among their learned parameters. In this work, we introduce trainable subnetworks, which mask out PLM weights responsible for the language modeling performance on a structural category of proteins. We systematically train 39 PLM subnetworks targeting both sequence- and residue-level features at varying degrees of resolution using annotations defined by the CATH taxonomy and secondary structure elements. Using these PLM subnetworks, we assess how structural factorization in PLMs influences downstream structure prediction. Our results show that PLMs are highly sensitive to sequence-level features and can predominantly disentangle extremely coarse or fine-grained information. Furthermore, we observe that structure prediction is highly responsive to factorized PLM representations and that small changes in language modeling performance can significantly impair PLM-based structure prediction performance. Our work presents a framework for studying feature entanglement within pretrained PLMs and can be leveraged to improve the alignment of learned PLM representations with known biological patterns.
 
 ![](fig/figure1.png)
 
@@ -33,7 +33,7 @@ We provide code to train subnetworks for ProtBERT-UniRef100, CARP-640M, and Dayh
 
 ## Data
 
-We use the CATH v.4.3.0 release for training. Training data and splits, precomputed annotations, model checkpoints, ESM-2 650M inference metrics, and subnetwork evaluation data to recreate our results in the paper are hosted on Zenodo: [link](https://zenodo.org/records/15514844)
+We use the CATH v.4.3.0 release for training. Training data and splits, precomputed annotations, model checkpoints, ESM-2 650M inference metrics, and subnetwork evaluation data to recreate our results in the paper are hosted on Hugging Face: [link]([https://zenodo.org/records/15514844](https://huggingface.co/riavinod/plm_subnetworks))
 
 
 Download the files to ```data/``` and results to ```results/```. 
@@ -70,11 +70,6 @@ domain_length: 85
 resolution: 2.5
 sequence: TPCTCGSSDLYLVTRHADVIPVRRRGDSRGSLLSPRPISYLKGSSGGPLLCPTGHAVGLFRAAVCTRGVAKAVDFIPVENLETTM
 
-```
-Model checkpoints are stored in split zip files, you can reassemble them via 
-```
-cat checkpoints.tar.gz.part_* > checkpoints.tar.gz
-tar -xvzf checkpoints.tar.gz
 ```
 
 
