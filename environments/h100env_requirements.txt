@@ -14,7 +14,7 @@ cycler==0.12.1
 docker-pycreds==0.4.0
 eval_type_backport==0.2.2
 fair-esm==2.0.0
-filelock==3.13.1
+filelock==3.20.1
 fonttools==4.56.0
 frozenlist==1.5.0
 fsspec==2024.6.1
