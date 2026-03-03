@@ -48,7 +48,6 @@ packaging==24.2
 pandas==2.2.3
 pillow==11.0.0
 platformdirs==4.3.6
-plmprobe==0.1
 propcache==0.2.1
 protobuf==5.29.3
 psutil==7.0.0
